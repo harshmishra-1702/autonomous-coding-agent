@@ -1,0 +1,1 @@
+- Day 1: repo, SRS, scaffold, Groq call working. Docker pending (WSL issue).
