@@ -1,1 +1,2 @@
 - Day 1: repo, SRS, scaffold, Groq call working. Docker pending (WSL issue).
+- Day 2: Sandbox class (start, exec with timeout, cleanup)
