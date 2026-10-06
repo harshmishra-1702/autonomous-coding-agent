@@ -1,2 +1,3 @@
 - Day 1: repo, SRS, scaffold, Groq call working. Docker pending (WSL issue).
 - Day 2: Sandbox class working (exec, timeout, cleanup, resource limits)
+- Day 3: ACI tools working (run_command, read_file, write_file, list_dir, delete_file)
