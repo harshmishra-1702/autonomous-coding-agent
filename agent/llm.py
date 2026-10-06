@@ -11,4 +11,4 @@ def chat(messages):
     return r.choices[0].message.content
 
 if __name__ == "__main__":
-    print(chat([{"role":"user", "content": "Say hi in 5 words."}]))
+    print(chat([{"role":"user", "content": "create a short story about cats in 100 words."}]))
