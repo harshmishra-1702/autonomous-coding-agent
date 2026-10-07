@@ -38,6 +38,33 @@ class Tools:
             f"rm -- {shlex.quote(path)} && echo {shlex.quote('deleted '+ path)}"
         )
 
+    def call(self, name, args):
+        if name not in {s["function"]["name"] for s in TOOL_SCHEMAS}:
+            return f"error: unknown tool {name}"
+        try:
+            return getattr(self, name)(**args)
+        except Exception as e:
+            return f"error: {e}"
+
+def _schema(name, desc, props, required):
+    return {
+        "type":"function", "function": {"name" : name, "description" : desc,
+        "parameters": {"type" : "object", "prperties" : props, "required" : required}}}
+
+def P(desc, t="string"):
+    return {"type": t, "description": desc}
+
+PATH = P("File path, relative to /workspace")
+
+TOOL_SCHEMAS = [
+    _schema("run_command", "Run a shell command in the sandbox (cwd /workspace). Returns exit code and output.",
+            {"cmd": P("Shell command to run"), "timeout": P("Seconds before kill, default 30", "integer")}, ["cmd"]),
+    _schema("read_file", "Read a file, with line numbers.", {"path": PATH}, ["path"]),
+    _schema("write_file", "Create or overwrite a file.",
+            {"path": PATH, "content": P("Full text to write to the file")}, ["path", "content"]),
+    _schema("list_dir", "List files in a directory.", {"path": PATH}, []),
+    _schema("delete_file", "Delete a single file.", {"path": PATH}, ["path"]),
+]
 
 if __name__=="__main__":
     with Sandbox() as sb:
