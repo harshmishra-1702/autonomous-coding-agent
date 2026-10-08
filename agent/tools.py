@@ -17,6 +17,8 @@ class Tools:
         self.sb=sandbox
 
     def run_command(self,cmd,timeout=30):
+        if isinstance(cmd, list):
+            cmd=shlex.join(cmd)
         code, out = self.sb.exec(cmd, timeout)
         return _trunc(f"exit_code={code}\n{out}")
 
