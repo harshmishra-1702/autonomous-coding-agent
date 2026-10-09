@@ -1,5 +1,6 @@
 import base64
 import shlex
+import inspect
 from agent.sandbox import Sandbox
 
 MAX_OUT =4000
@@ -19,6 +20,7 @@ class Tools:
     def run_command(self,cmd,timeout=30):
         if isinstance(cmd, list):
             cmd=shlex.join(cmd)
+        timeout = max(1, min(int(timeout), 120))
         code, out = self.sb.exec(cmd, timeout)
         return _trunc(f"exit_code={code}\n{out}")
 
@@ -43,10 +45,14 @@ class Tools:
     def call(self, name, args):
         if name not in {s["function"]["name"] for s in TOOL_SCHEMAS}:
             return f"error: unknown tool {name}"
+        fn = getattr(self, name)
+        allowed = inspect.signature(fn).parameters
+        extra = sorted(set(args) - set(allowed))
         try:
-            return getattr(self, name)(**args)
+            out = fn(**{k: v for k, v in args.items() if k in allowed})
         except Exception as e:
             return f"error: {e}"
+        return out + (f"\n[note: ignored unknown arguments {extra}]" if extra else "")
 
 def _schema(name, desc, props, required):
     return {
