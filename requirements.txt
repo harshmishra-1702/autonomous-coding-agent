@@ -2,3 +2,4 @@ groq
 python-dotenv
 docker
 dotenv
+[pytest]
