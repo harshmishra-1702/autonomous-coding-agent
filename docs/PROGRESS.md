@@ -2,6 +2,7 @@
 - Day 2: Sandbox class working (exec, timeout, cleanup, resource limits)
 - Day 3: ACI tools working (run_command, read_file, write_file, list_dir, delete_file)
 - Day 4: Brain chooses tools (LLM tool calling) and executes one step in sandbox
-- Day 5: ReAct loop working. Brain writes, runs, observes errors, retries, and finishes on its own. Verified with sum.py task (prints 5). Added step limit (10) and sandbox cleanup. Found issue: Brain sometimes repeats the same failing command (planned fix on Day 6).
-- Day 6: Loop detection (nudge on 2nd repeat, stop on 3rd), JSONL run logs, CLI task input, timeout clamp, tolerant tool dispatch. Verified: fizzbuzz run completes; repeated failing command aborts after 3 identical calls.
+- Day 5: ReAct loop with result feedback
+- Day 6: Loop detection, run logs, CLI input
 - Day 7: pytest suite for sandbox, tools, and agent loop
+- Day 8: History compaction for context limits
