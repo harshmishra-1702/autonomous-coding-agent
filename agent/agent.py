@@ -21,6 +21,28 @@ def _assistant_dict(msg):
                                         for tc in msg.tool_calls]
     return d
 
+MAX_CONTEXT_CHARS = 1500
+
+def _size(messages):
+    return sum(len(m.get("content") or "") + len(json.dumps(m.get("tool_calls", []))) for m in messages)
+
+def compact(messages, budget=MAX_CONTEXT_CHARS, keep_last=4):
+    """Shrink the oldest tool outputs until under budget. Returns how many were trimmed."""
+    if _size(messages) <= budget:
+        return 0
+    tool_idx = [i for i, m in enumerate(messages) if m["role"] == "tool"]
+    trimmed = 0
+    for i in tool_idx[:-keep_last]:
+        content = messages[i]["content"]
+        if content.startswith("[trimmed"):
+            continue
+        first = (content.splitlines() or [""])[0][:80]
+        messages[i]["content"] = f"[trimmed old output, {len(content)} chars. {first}]"
+        trimmed += 1
+        if _size(messages) <= budget:
+            break
+    return trimmed
+
 def run_agent(task, max_steps=10):
     messages = [{"role": "system","content":SYSTEM},
                 {"role": "user","content":task}]
@@ -36,6 +58,9 @@ def run_agent(task, max_steps=10):
     with Sandbox() as sb:
         tools = Tools(sb)
         for step in range(1, max_steps+1):
+            n = compact(messages)
+            if n:
+                log(type = "compact",step=step, trimmed=n)
             try:
                 msg = chat_with_tools(messages, TOOL_SCHEMAS)
             except BadRequestError as e:
