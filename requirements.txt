@@ -3,3 +3,4 @@ python-dotenv
 docker
 dotenv
 [pytest]
+openai
