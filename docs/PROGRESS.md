@@ -6,3 +6,4 @@
 - Day 6: Loop detection, run logs, CLI input
 - Day 7: pytest suite for sandbox, tools, and agent loop
 - Day 8: History compaction for context limits
+- Day 9: Groq retries with backoff, Google fallback
