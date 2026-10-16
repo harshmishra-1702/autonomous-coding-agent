@@ -1,4 +1,4 @@
-from agent.agent import compact, _size
+from agent.common import compact, _size
 
 def make(n, size=3000):
     msgs = [{"role": "system", "content":"s"},{"role": "user","content":"task"}]

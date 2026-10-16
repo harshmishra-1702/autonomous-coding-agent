@@ -1,11 +1,11 @@
-import json, os, sys, time
+import json, os, time
 from typing import TypedDict, Optional
 from groq import BadRequestError
 from langgraph.graph import StateGraph, START, END
 from agent.llm import chat_with_tools
 from agent.sandbox import Sandbox
 from agent.tools import Tools, TOOL_SCHEMAS
-from agent.agent import SYSTEM, _assistant_dict, compact  
+from agent.common import SYSTEM, _assistant_dict, compact  
 
 class State(TypedDict):
     messages: list            
@@ -95,6 +95,3 @@ def run_agent_graph(task, max_steps=10):
         print(f"\nStopped: {final['stop']}\n(log: {log_path})")
     return final["result"]
 
-if __name__ == "__main__":
-    task = " ".join(sys.argv[1:]) or "Create fizzbuzz.py that prints FizzBuzz for 1 to 15, then run it."
-    run_agent_graph(task)
