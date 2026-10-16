@@ -8,3 +8,4 @@
 - Day 8: History compaction for context limits
 - Day 9: Groq retries with backoff, Google fallback
 - Day 10: LangGraph port (agent and tools nodes)
+- Day 11: Graph is now the single agent loop
