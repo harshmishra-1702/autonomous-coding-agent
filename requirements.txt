@@ -4,3 +4,4 @@ docker
 dotenv
 [pytest]
 openai
+langgraph
