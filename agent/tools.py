@@ -55,9 +55,10 @@ class Tools:
         return out + (f"\n[note: ignored unknown arguments {extra}]" if extra else "")
 
 def _schema(name, desc, props, required):
-    return {
-        "type":"function", "function": {"name" : name, "description" : desc,
-        "parameters": {"type" : "object", "prperties" : props, "required" : required}}}
+    params = {"type": "object", "properties": props}
+    if required:                     
+        params["required"] = required
+    return {"type": "function", "function": {"name": name, "description": desc, "parameters": params}}
 
 def P(desc, t="string"):
     return {"type": t, "description": desc}
@@ -66,7 +67,7 @@ PATH = P("File path, relative to /workspace")
 
 TOOL_SCHEMAS = [
     _schema("run_command", "Run a shell command in the sandbox (cwd /workspace). Returns exit code and output.",
-            {"cmd": P("Shell command to run"), "timeout": P("Seconds before kill, default 30", "integer")}, ["cmd"]),
+            {"cmd": P("Shell command to run"), "timeout": P("Seconds before kill (max 120), default 30", "integer")}, ["cmd"]),
     _schema("read_file", "Read a file, with line numbers.", {"path": PATH}, ["path"]),
     _schema("write_file", "Create or overwrite a file.",
             {"path": PATH, "content": P("Full text to write to the file")}, ["path", "content"]),

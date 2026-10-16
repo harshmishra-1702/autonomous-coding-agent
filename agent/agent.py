@@ -12,13 +12,16 @@ SYSTEM=(
     "when the task is done, reply with a short summary and no tool call."
 )
 
+def _tc_dict(tc):
+    if hasattr(tc, "model_dump"):
+        return tc.model_dump(exclude_none=True)
+    return {"id": tc.id, "type": "function",
+            "function":{"name" : tc.function.name, "arguments": tc.function.arguments}}
+
 def _assistant_dict(msg):
     d = {"role":"assistant", "content": msg.content or ""}
     if msg.tool_calls:
-        d["tool_calls"] = [{"id": tc.id, "type": "function",
-                            "function":{"name": tc.function.name,
-                                        "arguments": tc.function.arguments}}
-                                        for tc in msg.tool_calls]
+        d["tool_calls"] = [_tc_dict(tc) for tc in msg.tool_calls]
     return d
 
 MAX_CONTEXT_CHARS = 1500
