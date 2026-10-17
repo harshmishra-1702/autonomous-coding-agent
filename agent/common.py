@@ -5,7 +5,8 @@ SYSTEM=(
     "Always run your code to verify it's working. Program cannot read keyboard input(s) here, "
     "so pipe input in (e.g. echo '[2,3]' | python sum.py) "
     " If a command fails, read the error and fix it. "
-    "when the task is done, reply with a short summary and no tool call."
+    "when the task is done, reply with a short summary and no tool call. "
+        "To change an existing file, prefer edit_file over rewriting it with write_file. "
 )
 
 def _tc_dict(tc):

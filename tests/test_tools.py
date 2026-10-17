@@ -39,3 +39,25 @@ def test_truncation_keeps_head_and_tail():
     out = _trunc("A" * MAX_OUT + "B" * MAX_OUT)
     assert "truncated" in out and out.startswith("A") and out.endswith("B")
 
+def test_edit_file_replaces_unique_text(tools):
+    tools.write_file("e.py", "a = 1\nb = 2\n")
+    assert "exit_code=0" in tools.edit_file("e.py", "b = 2", "b = 3")
+    out = tools.read_file("e.py")
+    assert "b = 3" in out and "a = 1" in out
+
+def test_edit_file_rejects_missing_text(tools):
+    tools.write_file("e2.py", "x = 1\n")
+    out = tools.edit_file("e2.py", "zzz", "y")
+    assert "exit_code=1" in out and "not found" in out
+
+def test_edit_file_rejects_ambiguous_match(tools):
+    tools.write_file("e3.py", "x = 1\nx = 1\n")
+    out = tools.edit_file("e3.py", "x = 1", "x = 2")
+    assert "exit_code=1" in out and "2 places" in out
+    assert "x = 2" not in tools.read_file("e3.py")      # file left untouched
+
+def test_edit_file_handles_quotes_and_newlines(tools):
+    tools.write_file("e4.py", "print('hi')\nprint(\"yo\")\n")
+    tools.edit_file("e4.py", "print('hi')\nprint(\"yo\")", "print(\"both\")")
+    assert 'print("both")' in tools.read_file("e4.py")
+

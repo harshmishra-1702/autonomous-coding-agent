@@ -11,6 +11,24 @@ def _trunc(s):
     h = MAX_OUT //2
     return s[:h] + f"\n...[{len(s)-MAX_OUT} chars truncated]...\n" + s[-h:]
 
+
+EDIT_PY = """
+import sys, base64
+path = sys.argv[1]
+old = base64.b64decode(sys.argv[2]).decode()
+new = base64.b64decode(sys.argv[3]).decode()
+text = open(path, encoding='utf-8').read()
+if not old:
+    sys.exit('error: old text is empty')
+n = text.count(old)
+if n == 0:
+    sys.exit('error: old text not found. Re-read the file and copy it exactly.')
+if n > 1:
+    sys.exit(f'error: old text matches {n} places. Include more surrounding lines to make it unique.')
+open(path, 'w', encoding='utf-8').write(text.replace(old, new))
+print('edited', path)
+"""
+
 class Tools:
     """Agent-Computer Interface: every tool runs inside the sandbox(FR-3,4)"""
 
@@ -23,6 +41,11 @@ class Tools:
         timeout = max(1, min(int(timeout), 120))
         code, out = self.sb.exec(cmd, timeout)
         return _trunc(f"exit_code={code}\n{out}")
+
+    def edit_file(self, path, old , new):
+        enc = lambda s: base64.b64encode(s.encode()).decode()
+        return self.run_command(
+            f"python -c {shlex.quote(EDIT_PY)} {shlex.quote(path)} {enc(old)} {enc(new)}")
 
     def read_file(self, path):
         return self.run_command(f"cat -n {shlex.quote(path)}")
@@ -73,7 +96,12 @@ TOOL_SCHEMAS = [
             {"path": PATH, "content": P("Full text to write to the file")}, ["path", "content"]),
     _schema("list_dir", "List files in a directory.", {"path": PATH}, []),
     _schema("delete_file", "Delete a single file.", {"path": PATH}, ["path"]),
+    _schema("edit_file", "Replace one exact piece of text in an existing file. 'old' must match exactly once. Prefer this over write_file for small changes.",
+        {"path": PATH, "old": P("Exact existing text to replace (must be unique in the file)"),
+        "new": P("Replacement text")}, ["path", "old", "new"]),
 ]
+
+
 
 if __name__=="__main__":
     with Sandbox() as sb:
