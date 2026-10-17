@@ -1,5 +1,6 @@
 .env
 workspace/
+evals/runs
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
