@@ -10,3 +10,4 @@
 - Day 10: LangGraph port (agent and tools nodes)
 - Day 11: Graph is now the single agent loop
 - Day 12: edit_file tool and mini evaluation suite
+- Day 13: Sandbox hardening and orphan container cleanup
