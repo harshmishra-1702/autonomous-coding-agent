@@ -101,7 +101,7 @@ flowchart LR
 | **FR-2** | **Task Input.** The system shall accept a high-level English instruction through a command-line interface. | Must |
 | **FR-3** | **Agent-Computer Interface (ACI).** The system shall provide custom tools designed for LLM consumption, with concise, structured outputs and clear error messages. Minimum set: `read_file`, `write_file`, `list_dir`, `run_command`. | Must |
 | **FR-4** | **Secure Execution.** All agent-generated code and shell commands shall execute exclusively inside the isolated Docker sandbox, never on the host. | Must |
-| **FR-5** | **Sandbox Lifecycle.** The system shall create a fresh container per task and destroy it on completion, failure, or interruption. | Must |
+| **FR-5** | **Sandbox Lifecycle.** The system shall create a fresh container per task and destroy it on completion, failure, or interruption and shall remove stale sandboxes left behind by killed runs at startup. | Must |
 | **FR-6** | **Memory Management.** The system shall manage context-window limits by truncating or summarizing lengthy terminal outputs before returning them to the LLM. | Must |
 | **FR-7** | **Self-Debugging.** On a failed command or test, the agent shall read the error output and attempt a corrective action. | Must |
 | **FR-8** | **LLM Fallback.** If the primary provider (Groq) fails or is rate-limited, the system shall fall back to Google AI Studio. | Should |
@@ -113,7 +113,7 @@ flowchart LR
 
 | ID | Category | Requirement |
 |---|---|---|
-| **NFR-1** | Security | The sandbox shall run with restricted resources (CPU, memory limits) and shall not mount host directories other than a dedicated workspace folder. |
+| **NFR-1** | Security | The sandbox shall run with restricted resources (CPU, memory, process count), no Linux capabilities, and no privilege escalation, and shall not mount host directories other than a dedicated workspace folder. |
 | **NFR-2** | Security | Network access inside the sandbox shall be disabled by default and enabled only when explicitly configured. |
 | **NFR-3** | Security | API keys shall be loaded from environment variables and never committed to version control. |
 | **NFR-4** | Reliability | Every command execution shall enforce a timeout; the loop shall enforce a maximum step count. |
