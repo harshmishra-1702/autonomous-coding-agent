@@ -1,6 +1,6 @@
 import httpx, pytest
 from types import SimpleNamespace as NS
-from groq import RateLimitError
+from groq import RateLimitError, BadRequestError
 import agent.llm as llm
 
 def rate_limit():
@@ -64,3 +64,50 @@ def test_non_retryable_error_is_not_swallowed(monkeypatch):
     assert groq.calls == 1 and google.calls == 0
 
     
+def bad_request(text):
+    resp = httpx.Response(400, request=httpx.Request("POST", "http://x"))
+    return BadRequestError(text, response=resp, body=None)
+
+class Spy(Fake):
+    def _create(self, **kw):
+        self.last = kw
+        return super()._create(**kw)
+
+def test_with_signatures_marks_only_first_call_and_copies():
+    calls = [{"id": "a", "function": {"name": "x"}}, {"id": "b", "function": {"name": "y"}}]
+    history = [{"role": "user", "content": "hi"},
+               {"role": "assistant", "content": "", "tool_calls": calls}]
+    out = llm._with_signatures(history)
+    sent = out[1]["tool_calls"]
+    assert sent[0]["extra_content"]["google"]["thought_signature"] == llm.PLACEHOLDER_SIG
+    assert "extra_content" not in sent[1]
+    assert "extra_content" not in calls[0]
+    assert out[0] == history[0]
+
+def test_with_signatures_keeps_real_signature():
+    call = {"id": "a", "extra_content": {"google": {"thought_signature": "REAL"}}}
+    out = llm._with_signatures([{"role": "assistant", "content": "", "tool_calls": [call]}])
+    assert out[0]["tool_calls"][0]["extra_content"]["google"]["thought_signature"] == "REAL"
+
+def test_parse_failure_retries_then_falls_back_with_signatures(monkeypatch):
+    groq = Spy([bad_request("Parsing failed. The model generated output that could not be parsed.")])
+    google = Spy(["google-msg"])
+    monkeypatch.setattr(llm, "client", groq)
+    monkeypatch.setattr(llm, "_fallback", google)
+    monkeypatch.setattr(llm, "GEMINI_MODEL", "m")
+    history = [{"role": "assistant", "content": "",
+                "tool_calls": [{"id": "c0", "type": "function", "function": {"name": "run_command", "arguments": "{}"}}]}]
+    assert llm.chat_with_tools(history, []) == "google-msg"
+    assert groq.calls == 3
+    sent = google.last["messages"][0]["tool_calls"][0]
+    assert sent["extra_content"]["google"]["thought_signature"] == llm.PLACEHOLDER_SIG
+    assert "extra_content" not in history[0]["tool_calls"][0]
+
+def test_unrelated_bad_request_is_not_retried(monkeypatch):
+    groq, google = Spy([bad_request("The model does not exist.")]), Spy(["google-msg"])
+    monkeypatch.setattr(llm, "client", groq)
+    monkeypatch.setattr(llm, "_fallback", google)
+    monkeypatch.setattr(llm, "GEMINI_MODEL", "m")
+    with pytest.raises(BadRequestError):
+        llm.chat_with_tools([], [])
+    assert groq.calls == 1 and google.calls == 0
