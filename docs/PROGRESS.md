@@ -12,3 +12,4 @@
 - Day 12: edit_file tool and mini evaluation suite
 - Day 13: Sandbox hardening and orphan container cleanup
 - Day 14: Harder evals with pass rates
+- Day 15: Placeholder signatures and parse-error retry
