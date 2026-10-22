@@ -44,3 +44,13 @@ def test_graph_has_agent_and_tools_nodes():
     app = gr.build_graph(None, lambda **e: None, 10)
     diagram = app.get_graph().draw_mermaid()
     assert "agent" in diagram and "tools" in diagram
+
+def test_budget_warning_is_sent_two_steps_before_the_limit(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    seen = []
+    def fake(m, t):
+        seen.append(any("2 steps left" in (x.get("content") or "") for x in m))
+        return reply(calls=[("run_command", json.dumps({"cmd": f"echo {len(seen)}"}))])
+    monkeypatch.setattr(gr, "chat_with_tools", fake)
+    gr.run_agent_graph("task", max_steps=4)
+    assert seen == [False, True, True, True]

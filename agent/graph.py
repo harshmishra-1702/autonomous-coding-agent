@@ -21,6 +21,9 @@ def build_graph(tools, log, max_steps):
             log(type="abort", reason="step limit reached")
             return {"stop": "step limit reached"}
         messages = state["messages"]
+        if max_steps - step == 2:
+            messages.append({"role": "user", "content":
+                "[NOTE : 2 steps left. Finish what is essential, then reply with a short summary and no tool call.]"})
         n = compact(messages)
         if n:
             log(type="compact", step=step, trimmed=n)
@@ -74,7 +77,7 @@ def build_graph(tools, log, max_steps):
     g.add_conditional_edges("tools", route, ["agent", END])
     return g.compile()
 
-def run_agent_graph(task, max_steps=10):
+def run_agent_graph(task, max_steps=15):
     os.makedirs("logs", exist_ok=True)
     log_path = f"logs/run-{time.strftime('%Y%m%d-%H%M%S')}.jsonl"
     def log(**event):

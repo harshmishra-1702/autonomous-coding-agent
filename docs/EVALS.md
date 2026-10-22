@@ -48,3 +48,23 @@ Run with `python -m evals.run_evals --runs 3`. Each task is checked by running t
 | csv_total | 2/3 | 20s |
 | distinct_words | 3/3 | 11s |
 | edit_similar_lines | 3/3 | 19s |
+
+## After tool path fix and step budget (Day 16)
+
+- Changes: empty path accepted by list_dir, default step limit 10 to 15, warning two steps before the limit, prompt rule to stop once code works.
+- Eval change: csv_total wording now asks for only the number, so that task is not directly comparable to earlier runs.
+- Score: 29/30 (Day 15: 26/30, Day 14: 28/30). A targeted run of the three weakest tasks scored 9/9.
+- Remaining weak spot: fix_failing_test (2/3, slowest task at 85s average).
+
+| Task | Passed | Avg time |
+|---|---|---|
+| fizzbuzz | 3/3 | 4s |
+| stdin_sum | 3/3 | 8s |
+| fix_bug | 3/3 | 19s |
+| small_edit | 3/3 | 19s |
+| add_with_test | 3/3 | 20s |
+| fix_failing_test | 2/3 | 85s |
+| rename_across_files | 3/3 | 48s |
+| csv_total | 3/3 | 26s |
+| distinct_words | 3/3 | 16s |
+| edit_similar_lines | 3/3 | 18s |

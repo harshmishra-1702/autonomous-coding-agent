@@ -50,7 +50,7 @@ TASKS = [
      "check": lambda sb: out(sb, "python main.py") == "Hello, World"
                          and sb.exec("grep -l greet *.py")[0] == 1},
     {"name": "csv_total",
-     "task": "Write total.py that reads sales.csv and prints the total of the amount column, then run it.",
+     "task": "Write total.py that reads sales.csv and prints only the total of the amount column, just the number, then run it.",
      "setup": {"sales.csv": SALES},
      "check": lambda sb: out(sb, "python total.py") in ("275", "275.0")},
     {"name": "distinct_words",
@@ -75,7 +75,7 @@ def run_task(t, root, i):
     start = time.time()
     try:
         with contextlib.redirect_stdout(io.StringIO()):
-            run_agent_graph(t["task"], max_steps=10)
+            run_agent_graph(t["task"])
         with Sandbox() as sb:
             ok = bool(t["check"](sb))
     except Exception as e:

@@ -58,7 +58,7 @@ class Tools:
         )
 
     def list_dir(self, path="."):
-        return self.run_command(f"ls -la {shlex.quote(path)}")
+        return self.run_command(f"ls -la {shlex.quote((path or '.').strip() or '.')}")
 
     def delete_file(self, path):
         return self.run_command(
@@ -94,7 +94,8 @@ TOOL_SCHEMAS = [
     _schema("read_file", "Read a file, with line numbers.", {"path": PATH}, ["path"]),
     _schema("write_file", "Create or overwrite a file.",
             {"path": PATH, "content": P("Full text to write to the file")}, ["path", "content"]),
-    _schema("list_dir", "List files in a directory.", {"path": PATH}, []),
+     _schema("list_dir", "List files in a directory.",
+            {"path": P("Directory to list, relative to /workspace. Use '.' for the current folder")}, []),
     _schema("delete_file", "Delete a single file.", {"path": PATH}, ["path"]),
     _schema("edit_file", "Replace one exact piece of text in an existing file. 'old' must match exactly once. Prefer this over write_file for small changes.",
         {"path": PATH, "old": P("Exact existing text to replace (must be unique in the file)"),

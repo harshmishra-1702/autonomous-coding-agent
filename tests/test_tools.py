@@ -61,3 +61,9 @@ def test_edit_file_handles_quotes_and_newlines(tools):
     tools.edit_file("e4.py", "print('hi')\nprint(\"yo\")", "print(\"both\")")
     assert 'print("both")' in tools.read_file("e4.py")
 
+def test_list_dir_empty_path_means_current_folder(tools):
+    tools.write_file("here.txt", "x")
+    assert "here.txt" in tools.call("list_dir", {"path": ""})
+    assert "here.txt" in tools.call("list_dir", {"path": None})
+    assert "here.txt" in tools.call("list_dir", {})
+
