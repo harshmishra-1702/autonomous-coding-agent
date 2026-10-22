@@ -13,3 +13,4 @@
 - Day 13: Sandbox hardening and orphan container cleanup
 - Day 14: Harder evals with pass rates
 - Day 15: Placeholder signatures and parse-error retry
+- Day 16: Tool path fix and step budget
