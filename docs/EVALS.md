@@ -68,3 +68,12 @@ Run with `python -m evals.run_evals --runs 3`. Each task is checked by running t
 | csv_total | 3/3 | 26s |
 | distinct_words | 3/3 | 16s |
 | edit_similar_lines | 3/3 | 18s |
+
+
+## Findings from trajectory reports (Day 17)
+
+- Trajectory reports of three fix_failing_test runs showed 12 to 15 steps each. Two causes: pytest is not installed in the sandbox and the agent tried it 2 to 3 times per run, and history compaction fired on every step from step 6 on tiny files because the context budget was set far too low, so old tool outputs became stubs and the agent kept re-reading files.
+- Fixes: context budget set to 24000 characters, and a system prompt line stating the sandbox has no pytest, no internet and no pip installs.
+- Result: fix_failing_test went to 3/3 in two separate targeted runs (6/6 total) at 26 to 28s average (earlier full runs: 2/3 at 49 to 85s).
+- Caveat: these are targeted runs of a single task. A full re-run is needed for a new overall baseline.
+- Tooling: `python -m evals.report <run folder>` prints any run as one line per step. Failed runs and runs that hit the step limit now print it automatically.

@@ -1,6 +1,7 @@
 import argparse, contextlib, io, os, shutil, time
 from agent.graph import run_agent_graph
 from agent.sandbox import Sandbox
+from evals.report import load, summarize
 
 CALC_TEST = ("from calc import add, is_even\n"
              "assert add(2, 3) == 5\n"
@@ -83,7 +84,7 @@ def run_task(t, root, i):
         print(f"  error: {type(e).__name__}: {str(e)[:120]}")
     finally:
         os.chdir(root)
-    return ok, time.time() - start
+    return ok, time.time() - start, d
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
@@ -96,10 +97,19 @@ if __name__ == "__main__":
         if args.names and t["name"] not in args.names:
             continue
         results = [run_task(t, root, i) for i in range(1, args.runs + 1)]
-        passed = sum(ok for ok, _ in results)
-        avg = sum(s for _, s in results) / len(results)
+        passed = sum(r[0] for r in results)
+        avg = sum(r[1] for r in results) / len(results)
         rows.append((t["name"], passed, args.runs, avg))
         print(f"{passed}/{args.runs}  {t['name']:<20} {avg:4.0f}s avg")
+        for ok, _, d in results:
+            try:
+                events = load(d)
+            except (ValueError, OSError):
+                events = []
+            if not ok or any(e["type"] == "abort" for e in events):
+                print(f"  {'FAILED' if not ok else 'passed but aborted'}: {os.path.basename(d)}")
+                for line in summarize(events):
+                    print("    " + line)
     print(f"\nScore: {sum(r[1] for r in rows)}/{sum(r[2] for r in rows)}")
     print("\n| Task | Passed | Avg time |\n|---|---|---|")
     for name, p, n, s in rows:

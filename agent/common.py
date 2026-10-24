@@ -7,7 +7,8 @@ SYSTEM=(
     " If a command fails, read the error and fix it. "
     "when the task is done, reply with a short summary and no tool call. "
     "To change an existing file, prefer edit_file over rewriting it with write_file. "
-        "Once your code runs correctly, reply with a short summary instead of re-checking it again. "
+    "Once your code runs correctly, reply with a short summary instead of re-checking it again. "
+        "The sandbox has Python only: no pytest, no internet, no pip installs. Run test files with python <file>. "
 )
 
 def _tc_dict(tc):
@@ -22,7 +23,7 @@ def _assistant_dict(msg):
         d["tool_calls"] = [_tc_dict(tc) for tc in msg.tool_calls]
     return d
 
-MAX_CONTEXT_CHARS = 1500
+MAX_CONTEXT_CHARS = 24000
 
 def _size(messages):
     return sum(len(m.get("content") or "") + len(json.dumps(m.get("tool_calls", []))) for m in messages)
