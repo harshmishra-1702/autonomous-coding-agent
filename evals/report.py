@@ -41,7 +41,8 @@ def summarize(events):
         elif kind == "done":
             last = max(last, e["step"])
             outcome = f"done at step {e['step']}"
-            lines.append(f"{e['step']:>3} -- done: {str(e.get('summary'))[:80]}")
+            text = " ".join(str(e.get("summary")).split())[:80]
+            lines.append(f"{e['step']:>3} -- done: {text}")
         elif kind == "abort":
             outcome = f"abort ({e.get('reason')})"
             lines.append(f"    -- abort: {e.get('reason')}")

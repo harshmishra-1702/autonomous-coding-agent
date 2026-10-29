@@ -39,7 +39,13 @@ pip install -r requirements.txt
 copy .env.example .env
 ```
 
-Edit `.env` and fill in your keys and model names, then run a task:
+Edit `.env` and set:
+
+- `GROQ_API_KEY`: your Groq key
+- `GROQ_MODEL`: a current Groq chat model that supports tool calling (model names change over time)
+- `GOOGLE_API_KEY` and `GEMINI_MODEL`: optional, they enable the fallback to Google AI Studio
+
+Then run a task:
 
 ```powershell
 python -m agent "Create fizzbuzz.py that prints FizzBuzz for 1 to 15, then run it."
@@ -64,9 +70,7 @@ The task was: *"test_calc.py is failing. Run it, find the bugs in calc.py, and f
   4 edit_file(new='return a + b', old='return a - b', path='calc.py') -> exit_code=0
   5 edit_file(new='return n % 2 == 0', old='return n % 2 == 1', path='calc.py') -> exit_code=0
   6 run_command(cmd='python test_calc.py', timeout='120') -> exit_code=0 | ok
-  7 -- done: Fixed the bugs in `calc.py`:
-
-- Corrected `add` to perform addition instead of s
+  7 -- done: Fixed the bugs in `calc.py`: - Corrected `add` to perform addition
 summary: 6 tool calls (run_command x2, read_file x2, edit_file x2) | ignored args: 2 | done at step 7
 ```
 
@@ -75,6 +79,8 @@ summary: 6 tool calls (run_command x2, read_file x2, edit_file x2) | ignored arg
 A small evaluation suite of 10 tasks (writing programs, fixing bugs, multi-file edits, precise edits to similar-looking lines). Each task runs 3 times and is graded by running the result in the sandbox, not by trusting the agent's own summary.
 
 Score: 30/30
+
+Models: Groq openai/gpt-oss-20b, with Google gemini-3.8-flash as fallback.
 
 | Task | Passed | Avg time |
 |---|---|---|
@@ -121,4 +127,4 @@ tests/          unit tests (fake LLM, real Docker for the sandbox)
 docs/           SRS, roadmap, progress log, eval results
 ```
 
-The full requirements are in [docs/SRS.md](docs/SRS.md).
+The full requirements are in [docs/SRS.md](docs/SRS.md). Licensed under the terms in [LICENSE](LICENSE).
