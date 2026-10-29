@@ -1,7 +1,7 @@
 groq
 python-dotenv
 docker
-dotenv
-[pytest]
 openai
 langgraph
+pytest
+httpx
